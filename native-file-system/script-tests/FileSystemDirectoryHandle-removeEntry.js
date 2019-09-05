@@ -1,9 +1,5 @@
-// META: script=resources/test-helpers.js
-promise_test(async t => cleanupSandboxedFileSystem(),
-    'Cleanup to setup test environment');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const handle = await createFileWithContents(t, 'file-to-remove', '12345', root);
     await createFileWithContents(t, 'file-to-keep', 'abc', root);
     await root.removeEntry('file-to-remove');
@@ -12,16 +8,14 @@ promise_test(async t => {
     await promise_rejects(t, 'NotFoundError', getFileContents(handle));
 }, 'removeEntry() to remove a file');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const handle = await createFileWithContents(t, 'file-to-remove', '12345', root);
     await root.removeEntry('file-to-remove');
 
     await promise_rejects(t, 'NotFoundError', root.removeEntry('file-to-remove'));
 }, 'removeEntry() on an already removed file should fail');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const dir = await root.getDirectory('dir-to-remove', { create: true });
     await createFileWithContents(t, 'file-to-keep', 'abc', root);
     await root.removeEntry('dir-to-remove');
@@ -30,8 +24,7 @@ promise_test(async t => {
     await promise_rejects(t, 'NotFoundError', getSortedDirectoryEntries(dir));
 }, 'removeEntry() to remove an empty directory');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const dir = await root.getDirectory('dir-to-remove', { create: true });
     t.add_cleanup(() => root.removeEntry('dir-to-remove', { recursive: true }));
     await createEmptyFile(t, 'file-in-dir', dir);
@@ -41,27 +34,22 @@ promise_test(async t => {
     assert_array_equals(await getSortedDirectoryEntries(dir), ['file-in-dir']);
 }, 'removeEntry() on a non-empty directory should fail');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const dir = await createDirectory(t, 'dir', root);
     await promise_rejects(t, new TypeError(), dir.removeEntry(""));
 }, 'removeEntry() with empty name should fail');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const dir = await createDirectory(t, 'dir', root);
     await promise_rejects(t, new TypeError(), dir.removeEntry(kCurrentDirectory));
 }, `removeEntry() with "${kCurrentDirectory}" name should fail`);
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const dir = await createDirectory(t, 'dir', root);
     await promise_rejects(t, new TypeError(), dir.removeEntry(kParentDirectory));
 }, `removeEntry() with "${kParentDirectory}" name should fail`);
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-
+directory_test(async (t, root) => {
     const dir_name = 'dir-name';
     const dir = await createDirectory(t, dir_name, root);
 

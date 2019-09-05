@@ -1,14 +1,8 @@
-// META: script=resources/test-helpers.js
-promise_test(async t => cleanupSandboxedFileSystem(),
-        'Cleanup to setup test environment');
-
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     await promise_rejects(t, 'NotFoundError', root.getDirectory('non-existing-dir'));
 }, 'getDirectory(create=false) rejects for non-existing directories');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const handle = await root.getDirectory('non-existing-dir', { create: true });
     t.add_cleanup(() => root.removeEntry('non-existing-dir', { recursive: true }));
 
@@ -19,8 +13,7 @@ promise_test(async t => {
     assert_array_equals(await getSortedDirectoryEntries(root), ['non-existing-dir/']);
 }, 'getDirectory(create=true) creates an empty directory');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const existing_handle = await root.getDirectory('dir-with-contents', { create: true });
     t.add_cleanup(() => root.removeEntry('dir-with-contents', { recursive: true }));
     const file_handle = await createEmptyFile(t, 'test-file', existing_handle);
@@ -33,8 +26,7 @@ promise_test(async t => {
     assert_array_equals(await getSortedDirectoryEntries(handle), ['test-file']);
 }, 'getDirectory(create=false) returns existing directories');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, root) => {
     const existing_handle = await root.getDirectory('dir-with-contents', { create: true });
     t.add_cleanup(() => root.removeEntry('dir-with-contents', { recursive: true }));
     const file_handle = await existing_handle.getFile('test-file', { create: true });
@@ -47,38 +39,32 @@ promise_test(async t => {
     assert_array_equals(await getSortedDirectoryEntries(handle), ['test-file']);
 }, 'getDirectory(create=true) returns existing directories without erasing');
 
-promise_test(async t => {
-    const root = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-    await createEmptyFile(t, 'file-name');
+directory_test(async (t, root) => {
+    await createEmptyFile(t, 'file-name', root);
 
     await promise_rejects(t, 'TypeMismatchError', root.getDirectory('file-name'));
     await promise_rejects(t, 'TypeMismatchError', root.getDirectory('file-name', { create: false }));
     await promise_rejects(t, 'TypeMismatchError', root.getDirectory('file-name', { create: true }));
 }, 'getDirectory() when a file already exists with the same name');
 
-promise_test(async t => {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, dir) => {
     await promise_rejects(t, new TypeError(), dir.getDirectory("", { create: true }));
     await promise_rejects(t, new TypeError(), dir.getDirectory("", { create: false }));
 }, 'getDirectory() with empty name');
 
-promise_test(async t => {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, dir) => {
     await promise_rejects(t, new TypeError(), dir.getDirectory(kCurrentDirectory));
     await promise_rejects(t, new TypeError(), dir.getDirectory(kCurrentDirectory, { create: true }));
 }, `getDirectory() with "${kCurrentDirectory}" name`);
 
-promise_test(async t => {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
+directory_test(async (t, dir) => {
     const subdir = await createDirectory(t, 'subdir-name', /*parent=*/dir);
 
     await promise_rejects(t, new TypeError(), subdir.getDirectory(kParentDirectory));
     await promise_rejects(t, new TypeError(), subdir.getDirectory(kParentDirectory, { create: true }));
 }, `getDirectory() with "${kParentDirectory}" name`);
 
-promise_test(async t => {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-
+directory_test(async (t, dir) => {
     const first_subdir_name = 'first-subdir-name';
     const first_subdir = await createDirectory(t, first_subdir_name, /*parent=*/dir);
 
@@ -92,9 +78,7 @@ promise_test(async t => {
     }
 }, 'getDirectory(create=false) with a path separator when the directory exists');
 
-promise_test(async t => {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-
+directory_test(async (t, dir) => {
     const subdir_name = 'subdir-name';
     const subdir = await createDirectory(t, subdir_name, /*parent=*/dir);
 

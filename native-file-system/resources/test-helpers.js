@@ -13,12 +13,6 @@ if (navigator.userAgent.includes("Windows NT")) {
     kPathSeparators = [ '/' ];
 }
 
-async function cleanupSandboxedFileSystem() {
-    const dir = await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-    for await (let entry of dir.getEntries())
-        dir.removeEntry(entry.name, { recursive: entry.isDirectory });
-}
-
 async function getFileSize(handle) {
     const file = await handle.getFile();
     return file.size;
@@ -50,13 +44,10 @@ async function getSortedDirectoryEntries(handle) {
 }
 
 async function createDirectory(test, name, parent) {
-  const parent_dir_handle = parent ? parent :
-      await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-
-  const new_dir_handle = await parent_dir_handle.getDirectory(name, { create: true });
+  const new_dir_handle = await parent.getDirectory(name, { create: true });
   test.add_cleanup(async () => {
         try {
-            await parent_dir_handle.removeEntry(name, { recursive: true });
+            await parent.removeEntry(name, { recursive: true });
         } catch (e) {
             // Ignore any errors when removing directories, as tests might
             // have already removed the directory.
@@ -66,11 +57,10 @@ async function createDirectory(test, name, parent) {
 }
 
 async function createEmptyFile(test, name, parent) {
-    const dir = parent ? parent : await FileSystemDirectoryHandle.getSystemDirectory({ type: 'sandbox' });
-    const handle = await dir.getFile(name, { create: true });
+    const handle = await parent.getFile(name, { create: true });
     test.add_cleanup(async () => {
         try {
-            await dir.removeEntry(name);
+            await parent.removeEntry(name);
         } catch (e) {
             // Ignore any errors when removing files, as tests might already remove the file.
         }
