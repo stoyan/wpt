@@ -1059,6 +1059,9 @@ function invokeRequest(subresource, sourceContextList) {
     "iframe": { // <iframe src="same-origin-URL"></iframe>
       invoker: invokeFromIframe,
     },
+    "iframe-blank": { // <iframe></iframe>
+      invoker: invokeFromIframe,
+    },
     "worker-classic": {
       // Classic dedicated worker loaded from same-origin.
       invoker: invokeFromWorker.bind(undefined, false, {}),
@@ -1151,6 +1154,19 @@ function invokeFromIframe(subresource, sourceContextList) {
       .then(r => r.text())
       .then(srcdoc => {
           return createElement("iframe", {srcdoc: srcdoc}, document.body, true);
+        });
+  } else if (currentSourceContext.sourceContextType === 'iframe-blank') {
+    promise = fetch(frameUrl)
+      .then(r => r.text())
+      .then(frameContent => {
+        const iframe = createElement("iframe", {}, document.body, true);
+        return iframe.eventPromise
+          .then(() => {
+              bindEvents(iframe);
+              iframe.contentDocument.write(frameContent);
+              iframe.contentDocument.close();
+              return iframe;
+            });
         });
   } else if (currentSourceContext.sourceContextType === 'iframe') {
     promise = Promise.resolve(
