@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>CSS Text level 3 Test: handling leading ideographic space sequence</title>
+<link rel="author" title="Javier Fernandez Garcia-Boente" href="mailto:jfernandez@igalia.com">
+<link rel="help" href="https://drafts.csswg.org/css-text-3/#white-space-phase-2">
+<link rel="match" href="reference/white-space-break-spaces-005-ref.html">
+<meta name="assert" content="There is a breaking opportunity at the end of a leading ideographic space (U+3000) sequence.">
+<style>
+div { font: 25px/2 Ahem; }
+.test {
+    width: 4em;
+    color: green;
+    background: green;
+    white-space: pre-wrap;
+}
+.ref {
+    position: absolute;
+    z-index: -1;
+    color: red;
+}
+</style>
+
+<p>Test passes if there is a <strong>filled green square</strong> and <strong>no red</strong>.</p>
+<div class="ref">XXXX<br>XXXX</div>
+<div class="test">&#x3000;&#x3000;&#x3000;&#x3000;XX</div>
