@@ -9,13 +9,14 @@
 <link rel="stylesheet" type="text/css" href="/fonts/ahem.css" />
 <style>
 .container {
-    font: 25px/1 Ahem;
     width: 100px;
     height: 100px;
 }
 .child {
+    width: 25px;
+    height: 25px;
     margin: 50px;
-    color: red;
+    background: red;
 }
 .ref {
     position: absolute;
@@ -27,15 +28,15 @@
 }
 #item {
     margin: 50%;
-    color: green;
+    background: green;
 }
 </style>
 <p>Test passes if there is a filled green square and <strong>no red</strong>.</p>
-<div class="container ref"><div class="child">X</div></div>
-<div class="container grid"><div class="child" id="item">X</div></div>
+<div class="container ref"><div class="child"></div></div>
+<div class="container grid"><div class="child" id="item"></div></div>
 <script>
-    item.style.width = "0px";
+    item.style.margin = "100%";
     item.offsetLeft;
-    item.style.width = "auto";
+    item.style.margin = "50%";
     item.offsetLeft;
 </script>
