@@ -444,6 +444,11 @@ class MockRuntime {
           return device.mojom.XRSessionFeature.REF_SPACE_BOUNDED_FLOOR;
         case "unbounded":
           return device.mojom.XRSessionFeature.REF_SPACE_UNBOUNDED;
+
+        // Experimental features, treat as invalid if unknown.
+        case "dom-overlay-for-handheld-ar":
+          return device.mojom.XRSessionFeature.DOM_OVERLAY_FOR_HANDHELD_AR || device.mojom.XRSessionFeature.INVALID;
+
         default:
           return device.mojom.XRSessionFeature.INVALID;
       }
