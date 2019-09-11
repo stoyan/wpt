@@ -403,28 +403,38 @@ class MockRuntime {
   // This function converts between the matrix provided by the WebXR test API
   // and the internal data representation.
   getEye(fakeXRViewInit) {
-    let m = fakeXRViewInit.projectionMatrix;
 
-    function toDegrees(tan) {
-      return Math.atan(tan) * 180 / Math.PI;
-    }
+    let fov = null;
 
-    let xScale = m[0];
-    let yScale = m[5];
-    let near = m[14] / (m[10] - 1);
-    let far = m[14] / (m[10] - 1);
-    let leftTan = (1 - m[8]) / m[0];
-    let rightTan = (1 + m[8]) / m[0];
-    let upTan = (1 + m[9]) / m[5];
-    let downTan = (1 - m[9]) / m[5];
+    if (fakeXRViewInit.fieldOfView) {
+      fov = {
+        upDegrees: fakeXRViewInit.fieldOfView.upDegrees,
+        downDegrees: fakeXRViewInit.fieldOfView.downDegrees,
+        leftDegrees: fakeXRViewInit.fieldOfView.leftDegrees,
+        rightDegrees: fakeXRViewInit.fieldOfView.rightDegrees
+      };
+    } else {
+      let m = fakeXRViewInit.projectionMatrix;
 
-    return {
-      fieldOfView: {
+      function toDegrees(tan) {
+        return Math.atan(tan) * 180 / Math.PI;
+      }
+
+      let leftTan = (1 - m[8]) / m[0];
+      let rightTan = (1 + m[8]) / m[0];
+      let upTan = (1 + m[9]) / m[5];
+      let downTan = (1 - m[9]) / m[5];
+
+      fov = {
         upDegrees: toDegrees(upTan),
         downDegrees: toDegrees(downTan),
         leftDegrees: toDegrees(leftTan),
         rightDegrees: toDegrees(rightTan)
-      },
+      };
+    }
+
+    return {
+      fieldOfView: fov,
       headFromEye: composeGFXTransform(fakeXRViewInit.viewOffset),
       renderWidth: fakeXRViewInit.resolution.width,
       renderHeight: fakeXRViewInit.resolution.height
